@@ -7,18 +7,25 @@
         </div>
         <div class="row border">
             <div class="col-sm-12 col-md-4 p-4">
-                <div class="input-group-append ml-sm-n3">
-                    <button class="btn btn-outline-secondary" type="button" (click)="onWayFlight()">
-                        One Way
-                    </button>
-                    <button class="btn btn-outline-secondary" type="button" (click)="returnFlight()">
-                        Return
-                    </button>
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#one-way" role="tab"
+                            aria-controls="home" aria-selected="true" (click)="onFlightSelect('oneWay')">
+                            One Way</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#return" role="tab"
+                            aria-controls="profile" aria-selected="false" (click)="onFlightSelect('return')">
+                            Return
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
                 </div>
 
                 <div class="row">
                     <div class="col-sm-12 col-md-12 mx-auto border">
-                        <!-- {{flightForm.value | json}} -->
                         <form [formGroup]="flightForm">
 
                             <div class="input-group py-3">
@@ -34,12 +41,16 @@
                                 <input type="text" [bsConfig]="bsConfigGlobal" #dp="bsDatepicker" bsDatepicker
                                     [minDate]="minDate" class="form-control" formControlName="departDate"
                                     placeholder="Depart Date" />
-                                <!-- <input type="text" class="form-control" placeholder="Search Products"
-                                    formControlName="departDate" autofocus=""> -->
+                            </div>
+                            <div class="input-group mb-3" *ngIf="isReturn">
+                                <input type="text" [bsConfig]="bsConfigGlobal" #dp="bsDatepicker" bsDatepicker
+                                    [minDate]="minDate" class="form-control" formControlName="arivalDate"
+                                    placeholder="Return Date" />
+
                             </div>
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Arive Date"
-                                    formControlName="arivalDate" autofocus="">
+                                <input type="number" class="form-control" placeholder="Passengers"
+                                    formControlName="available" autofocus="">
                             </div>
                             <div class="input-group-append mb-3">
                                 <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">
@@ -57,7 +68,8 @@
                             <p class="col-12">
                                 Refine flight search
                             </p>
-                            <mv-slider [(value)]="value" [min]="1" [max]="100" [enabled]="enabled" (change)="change()">
+                            <mv-slider [(value)]="value" [min]="1000" [max]="100000" [enabled]="enabled"
+                                (change)="rangePriceFlight($event)">
                             </mv-slider>
                         </div>
 
@@ -69,26 +81,31 @@
                 <div class="row p-0 m-0 border-bottom p-3">
 
                     <div class="col-sm-8 mx-auto">
-                        {{filteredList[0].source | uppercase}} > {{filteredList[0].destination | uppercase}}
+                        {{finalFilteredList[0]?.source | uppercase}} > {{finalFilteredList[0]?.destination | uppercase}}
                     </div>
                     <div class="col-sm-4 mx-auto">
-                        Time : {{date | date:'h:mm a'}}
+                        Depart : {{flightForm.value.departDate | date}}
+                        Arrive : {{flightForm.value.arivalDate | date}}
                     </div>
                 </div>
                 <div class="scroll">
-                    <ng-container *ngFor="let list of filteredList">
+                    <ng-container *ngFor="let list of finalFilteredList">
                         <div class="card  m-3">
                             <div class="card-body row">
                                 <h5 class="card-title col-md-12"> RS. {{list.amount}}.00</h5>
                                 <div class="card-text row col-5 ml-0">
                                     <p class="card-text row col-md-12">{{list.srcCode}} > {{list.destCode}}</p>
-                                    <p class="card-text row col-md-12">Depart: {{list.departDate | date:'h:mm a'}}</p>
-                                    <p class="card-text row col-md-12">Arive: {{list.arivalDate | date:'h:mm a'}}</p>
+                                    <p class="card-text row col-md-12">Depart: {{list.departDate | date:'short'}}
+                                    </p>
+                                    <p class="card-text row col-md-12">Arrive: {{list.arivalDate | date:'short'}}
+                                    </p>
                                 </div>
                                 <div class="card-text row col-5">
                                     <p class="card-text row col-md-12">{{list.destCode}} > {{list.srcCode}}</p>
-                                    <p class="card-text row col-md-12">Arive : {{list.arivalDate | date:'h:mm a'}}</p>
-                                    <p class="card-text row col-md-12">Depart: {{list.departDate | date:'h:mm a'}}</p>
+                                    <p class="card-text row col-md-12">Arrive : {{list.arivalDate | date:'short'}}
+                                    </p>
+                                    <p class="card-text row col-md-12">Depart: {{list.departDate | date:'short'}}
+                                    </p>
                                 </div>
                                 <div class="card-text row col-sm-2">
                                     <p class="card-text row col-md-12"><img src="assets/ticket.png" alt="ticket"
